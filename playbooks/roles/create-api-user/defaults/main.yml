@@ -1,0 +1,8 @@
+---
+
+api_group_name: provisioning
+api_user_name: ansible
+api_auth_realm: pve
+api_object_path: /
+
+...

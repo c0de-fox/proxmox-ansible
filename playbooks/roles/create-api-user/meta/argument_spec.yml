@@ -15,7 +15,7 @@ argument_specs:
       - Group permission assignment should be preferred
 
     options:
-      api_user_role:
+      api_group_role:
         type: str
         required: false
         default: NoAccess

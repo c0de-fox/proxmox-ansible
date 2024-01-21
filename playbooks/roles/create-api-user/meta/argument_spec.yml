@@ -40,6 +40,12 @@ argument_specs:
         default: ansible
         description: The user-name of the account that will get an API token
 
+      api_auth_realm:
+        type: str
+        required: false
+        default: pve
+        description: The authentication backend provider
+
       api_object_path:
         type: str
         required: false

@@ -1,0 +1,63 @@
+---
+
+- name: Get list of users
+  ansible.builtin.shell: pveum user list --output-format json
+  register: user_list
+
+- name: Determine if our user is in the list
+  set_fact:
+    found_users: "{{ user_list.stdout | from_json | community.general.json_query(jq) }}"
+  vars:
+    jq: "[?userid == '{{ api_user_name }}@{{ api_auth_realm }}'].userid"
+
+- name: "Fail if {{ api_user_name }} User exists"
+  ansible.builtin.fail:
+    msg: "{{ api_user_name }} already exists. Nothing to do."
+  when: found_users | length >= 1
+
+- name: Get list of groups
+  ansible.builtin.shell: pveum group list --output-format json
+  register: group_list
+
+- name: "Determine if {{ api_group_name }} is in the list"
+  set_fact:
+    found_groups: "{{ group_list.stdout | from_json | community.general.json_query(jq) }}"
+  vars:
+    jq: "[?groupid == '{{ api_group_name }}'].groupid"
+
+- name: "Create {{ api_group_name }} Group if it does not already exist"
+  ansible.builtin.shell: "pveum group add {{ api_group_name }}"
+  when: found_groups | length <= 0
+
+- name: "Assign {{ api_group_role }} Role to {{ api_group_name }} on {{ api_object_path }} Objects"
+  ansible.builtin.shell: "pveum acl modify {{ api_object_path }} -group {{ api_group_name }} -role {{ api_group_role }}"
+  when: found_groups | length <= 0
+
+- name: "Create {{ api_user_name }} User and add it to the {{ api_group_name }} Group"
+  ansible.builtin.shell: "pveum user add {{ api_user_name }}@{{ api_auth_realm }} -groups {{ api_group_name }}"
+
+- name: "Create API Token for {{ api_user_name }}"
+  ansible.builtin.shell: >
+    pveum user token add {{ api_user_name }}@{{ api_auth_realm }} api_token -privsep 0 --output-format json | jq '.value'
+  register: api_user_token
+
+- name: Print the token secret
+  debug:
+    msg: >
+      Token ID: {{ api_user_name }}@{{ api_auth_realm }}!api_token
+      Token Secret: {{ api_user_token.stdout }}
+
+# FIXME: We're failing to auth here
+# TASK [create-api-user : Verify API Token works] ********************************
+# An exception occurred during task execution. To see the full traceback, use -vvv. The error was: proxmoxer.core.ResourceException: 401 Unauthorized: invalid token value! - {'errors': b''}
+# fatal: [vulpes.c0de.online -> localhost]: FAILED! => {"changed": false, "msg": "401 Unauthorized: invalid token value! - {'errors': b''}"}
+- name: Verify API Token works
+  community.general.proxmox_vm_info:
+    api_host: "{{ inventory_hostname }}"
+    validate_certs: true
+    api_user: "{{ api_user_name }}@{{ api_auth_realm }}"
+    api_token_id: "api_token"
+    api_token_secret: "{{ api_user_token.stdout }}"
+  delegate_to: localhost
+
+...

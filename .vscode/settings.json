@@ -2,5 +2,6 @@
     "license.filename": "license",
     "license.extension": ".txt",
     "license.author": "Code Fox <c0de@c0de.dev>",
-    "license.default": "bsd-3-clause"
+    "license.default": "bsd-3-clause",
+    "ansible.python.interpreterPath": "./.venv/bin/python"
 }

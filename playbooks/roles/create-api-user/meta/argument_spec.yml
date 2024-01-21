@@ -1,0 +1,53 @@
+---
+
+# roles/create-api-user/meta/argument_specs.yml
+
+argument_specs:
+  main:
+    author:
+      - Code Fox
+    short_description: Creates an API user in proxmox using SSH key auth
+    description:
+      - Creates an API user in proxmox using SSH key auth
+      - The root user should already exist, and have an ssh key configured
+      - If nothing is provided, a provisioning group will be created, with
+      - an ansible user that has NoAccess
+      - Group permission assignment should be preferred
+
+    options:
+      api_user_role:
+        type: str
+        required: false
+        default: NoAccess
+        description:
+          - The Proxmox role to assign to the group
+          - By default NoAccess is allowed
+          - Default Roles can be found in the documentation
+          - https://pve.proxmox.com/wiki/User_Management#pveum_permission_management
+
+      api_group_name:
+        type: str
+        required: false
+        default: provisioning
+        description:
+          - The group that will be assigned permissions
+          - Users get their permissions from the group
+          - Subsequent runs will put the users in the same group
+
+      api_user_name:
+        type: str
+        required: false
+        default: ansible
+        description: The user-name of the account that will get an API token
+
+      api_object_path:
+        type: str
+        required: false
+        default: /
+        description:
+          - The path to resources in the Proxmox Object Permission schema
+          - The default is all objects
+          - More details can be found in the documentation in the objects and paths section
+          - https://pve.proxmox.com/wiki/User_Management#pveum_permission_management
+
+...

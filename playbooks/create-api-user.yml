@@ -1,0 +1,12 @@
+---
+
+# * This playbook will use the root user account that
+# * has an ssh key to create a new user for API access
+
+- name: Create Proxmox API User
+  gather_facts: false
+  hosts: proxmox_hosts
+  roles:
+    - role: create-api-user
+
+...

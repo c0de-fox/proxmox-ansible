@@ -1,0 +1,6 @@
+proxmox_hosts:
+  hosts:
+    vulpes.c0de.online:
+    proxmox.c0de.online:
+  vars:
+    ansible_user: root

@@ -3,5 +3,7 @@
 #~ always loaded ~#
 
 api_user_name: terraform
+api_user_role: PVEVMAdmin  # Virtual Machine Administrator
+api_object_path: /vms  # Access to VMs
 
 ...
